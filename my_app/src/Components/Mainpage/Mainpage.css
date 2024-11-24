@@ -1,0 +1,80 @@
+/* .navbar-Mainpage{
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    column-gap: 2%;
+    background-color: rgb(217, 216, 221); 
+    height: 4%;
+} */
+.main-Mainpage{
+    height: 100vh;
+    background-color: rgb(159, 241, 166);
+}
+*{
+    box-sizing: border-box;
+}
+.header-mainpage {
+    background: #007BFF;
+    color: white;       
+    padding: 1em;
+    display: flex;
+    justify-content: space-between;  
+    align-items: center;  
+    column-gap: 50%;
+}
+
+.header-items-mainpage {
+    list-style: none;      
+    display: flex;
+    gap: 20%;             
+}
+
+.header-items-mainpage li a {
+    color: white;           /* Ensure links are white */
+    text-decoration: none;  /* Remove underline from links */
+}
+
+.header-items-mainpage li a:hover {
+    text-decoration: underline; /* Add underline on hover */
+}
+
+main {
+    padding: 20px;
+}
+.mainpage{
+    padding: 0;
+}
+
+section {
+    margin: 20px 0;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+footer {
+    background: #007BFF;
+    color: white;
+    text-align: center;
+    padding: 1em;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+#chatbox {
+    display: flex;
+    flex-direction: column;
+}
+
+#messages {
+    border: 1px solid #ddd;
+    padding: 10px;
+    height: 150px;
+    overflow-y: auto;
+}
+
+#userInput {
+    padding: 10px;
+    margin-top: 10px;
+}
