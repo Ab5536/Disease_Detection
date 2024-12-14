@@ -5,6 +5,7 @@ import Consultation from "./Components/Consultation/Consultation";
 import Chatbot from "./Components/ChatbotAI/ChatbotAI";
 import Home from "./Components/Home/Home";
 import { Navigate, useNavigate } from "react-router-dom";
+import logo from './logo.png';
 const Mainpage = () => {
     const route = useNavigate();
 
@@ -12,7 +13,10 @@ const Mainpage = () => {
 
         <div className="mainpage">
             <header className="header-mainpage">
-                <h1>Health Detection System</h1>
+                <div className="logo-container"> {/* Wrap logo in a container */}
+                <img src={logo} alt="Disease Detection System Logo" className="logo" /> 
+                </div>
+                <h1>Disease Detection </h1>
                 <nav>
                     <ul className="header-items-mainpage">
                         <li><a href="#home">Home</a></li>
@@ -36,6 +40,23 @@ const Mainpage = () => {
             </header>
 
             <main>
+            <section className="first-section">
+                <div className="first-text">
+                    <span className="subheading">Best Treatment in Town</span>
+                    <h1>Your Health, Our Priority</h1>
+                    <p>Benefit from expert medical guidance and innovative treatment approaches</p>
+                    <button 
+                        className="btn-consult-us" 
+                        onClick={() =>{
+                            route('/consultation')
+                        }
+                    }
+                    >
+                        Consult Us 
+                    </button>
+                </div>
+
+            </section>
                 <Home />
                 <Consultation />
                 <Chatbot />
