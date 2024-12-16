@@ -68,7 +68,7 @@
 
   .first-section {
     flex: 1;
-    background-image: url('firstsection.png'); ;
+    background-image: url('./images/firstsection.png'); ;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
