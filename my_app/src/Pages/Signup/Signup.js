@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import './Signup.css';
+import InputField from "../Signin/Inputfield/InputField";// Importing the InputField component
+import "./Signup.css";
 
 const Signup = () => {
-    const residationTypes = ["Home", "Apartment", "Rented"];
+   
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name: "",
@@ -12,8 +13,6 @@ const Signup = () => {
         email: "",
         phoneNumber: "",
         cityName: "",
-        society: "",
-        residationType: "Home",
         gender: ""
     });
     const [error, setError] = useState("");
@@ -50,115 +49,66 @@ const Signup = () => {
     };
 
     const validateForm = () => {
-        const { email, name, phoneNumber, password, cityName, society, gender } = formData;
-        return email && name && phoneNumber && password && cityName && society && gender && gender !== "Gender";
+        const { email, name, phoneNumber, password, cityName, gender } = formData;
+        return email && name && phoneNumber && password && cityName && gender && gender !== "Gender";
     };
 
     return (
         <div className="signup-container">
-            
-            <h1 className="app-title">Authenticator</h1>
-
-            <form className="signup-form" onSubmit={submitHandler}>
-                
-                <h2 className="form-title">Sign Up</h2>
-                
-                <input
-                    className="form-input"
-                    placeholder="Enter Email"
-                    onChange={handleChange}
-                    value={formData.email}
-                    name="email"
-                    type="email"
-                    required
-                />
-                
-                <input
-                    className="form-input"
-                    placeholder="Enter Name"
-                    onChange={handleChange}
-                    value={formData.name}
-                    name="name"
-                    type="text"
-                    required
-                />
-                
-                <input
-                    className="form-input"
-                    placeholder="Enter Phone Number"
-                    onChange={handleChange}
-                    value={formData.phoneNumber}
-                    name="phoneNumber"
-                    type="tel"
-                    required
-                />
-                
-                <input
-                    className="form-input"
-                    placeholder="Enter Password"
-                    onChange={handleChange}
-                    value={formData.password}
-                    name="password"
-                    type="password"
-                    required
-                />
-                
-                <input
-                    className="form-input"
-                    placeholder="Enter City Name"
-                    onChange={handleChange}
-                    value={formData.cityName}
-                    name="cityName"
-                    type="text"
-                    required
-                />
-                
-                <input
-                    className="form-input"
-                    placeholder="Enter Society"
-                    onChange={handleChange}
-                    value={formData.society}
-                    name="society"
-                    type="text"
-                    required
-                />
-                
-                <select
-                    className="form-select"
-                    onChange={handleChange}
-                    value={formData.residationType}
-                    name="residationType"
-                    required
-                >
-
-                    {residationTypes.map((type, index) => (
-                        <option key={index} value={type}>
-                            {type}
-                        </option>
-                    ))}
-
-                </select>
-                
-                <select
-                    className="form-select"
-                    name="gender"
-                    value={formData.gender}
-                    onChange={handleChange}
-                    required
-                >
-
-                    <option value="">Select Gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-
-                </select>
-                
-                {error && <p className="error-message">{error}</p>}
-                
-                <button className="submit-button" type="submit">
-                    Submit
-                </button>
-            </form>
+            <div className="signup-card">
+                <h1 className="signup-title">Create Your Account</h1>
+                <form className="signup-form" onSubmit={submitHandler}>
+                    <InputField
+                        name="email"
+                        type="email"
+                        placeholder="Enter Your Email"
+                        value={formData.email}
+                        onChange={handleChange}
+                    />
+                    <InputField
+                        name="name"
+                        type="text"
+                        placeholder="Enter Your Name"
+                        value={formData.name}
+                        onChange={handleChange}
+                    />
+                    <InputField
+                        name="phoneNumber"
+                        type="tel"
+                        placeholder="Enter Your Phone Number"
+                        value={formData.phoneNumber}
+                        onChange={handleChange}
+                    />
+                    <InputField
+                        name="password"
+                        type="password"
+                        placeholder="Enter Your Password"
+                        value={formData.password}
+                        onChange={handleChange}
+                    />
+                    <InputField
+                        name="cityName"
+                        type="text"
+                        placeholder="Enter Your City"
+                        value={formData.cityName}
+                        onChange={handleChange}
+                    />
+                    <select
+                        className="form-select"
+                        name="gender"
+                        value={formData.gender}
+                        onChange={handleChange}
+                    >
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                    {error && <p className="error-message">{error}</p>}
+                    <button className="submit-button" type="submit">
+                        Sign Up
+                    </button>
+                </form>
+            </div>
         </div>
     );
 };

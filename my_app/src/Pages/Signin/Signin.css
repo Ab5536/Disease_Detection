@@ -3,80 +3,118 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
 }
 
-/* Container */
+/* Background */
 .signin-container {
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh;
-    background: linear-gradient(135deg, #f0f4f8, #a0c4ff);
+    min-height: 100vh;
+    background: linear-gradient(135deg, #564b61, #748ebb);
+    padding: 20px;
 }
 
-/* Title */
+/* Card */
+.signin-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 40px 30px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Title & Subtitle */
 .signin-title {
     font-size: 2rem;
-    color: #333;
     font-weight: bold;
-    margin-bottom: 0.5rem;
+    color: #333;
+    margin-bottom: 10px;
 }
 
-.app-subtitle {
-    font-size: 1.2rem;
+.signin-subtitle {
+    font-size: 1rem;
     color: #666;
-    margin-bottom: 1.5rem;
+    margin-bottom: 20px;
 }
 
 /* Form */
 .signin-form {
-    background: #fff;
-    padding: 2rem;
-    width: 100%;
-    max-width: 400px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 /* Input Fields */
-.signin-input {
+input {
     width: 100%;
-    padding: 0.8rem;
-    margin-bottom: 1rem;
+    padding: 15px;
     border: 1px solid #ddd;
-    border-radius: 5px;
+    border-radius: 8px;
     font-size: 1rem;
-    transition: border-color 0.3s;
+    transition: border-color 0.3s ease;
 }
 
-.signin-input:focus {
-    border-color: #a0c4ff;
+input:focus {
+    border-color: #2575fc;
     outline: none;
 }
 
 /* Submit Button */
 .submit-button {
     width: 100%;
-    padding: 0.8rem;
+    padding: 15px;
     font-size: 1rem;
+    font-weight: bold;
     color: #fff;
-    background-color: #a0c4ff;
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background 0.3s ease;
 }
 
 .submit-button:hover {
-    background-color: #81aaff;
+    background: linear-gradient(135deg, #2575fc, #6a11cb);
 }
 
 /* Error Message */
 .error-message {
     color: #d9534f;
-    margin-bottom: 1rem;
     font-size: 0.9rem;
+    margin-top: -15px;
+}
+
+/* Signup Link */
+.signup-link {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 20px;
+}
+
+.signup-link a {
+    color: #2575fc;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.signup-link a:hover {
+    color: #6a11cb;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
