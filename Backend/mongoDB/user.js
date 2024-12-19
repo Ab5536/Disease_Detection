@@ -4,8 +4,7 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    unique: true,
-    // match: /.+\@.+\..+/ // Validates email format
+    unique: true,// match: /.+\@.+\..+/ // Validates email format
   },
   name: {
     type: String,
@@ -17,29 +16,17 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    //required: true
+    required: true
   },
   city: {
     type: String,
-    //required: true
-  },
-  society: {
-    type: String,
-    //required: true
-  },
-  residenceType: {
-    type: String,
-    enum: ['Apartment', 'House', 'Other'], // Specify allowed values
-    //required: true
   },
   gender: {
     type: String,
-    enum: ['Male', 'Female', 'Other'], // Specify allowed values
-    //required: true
+    enum: ['Male', 'Female', 'Other'], 
   }
 });
 
-// Create the User model
 const User = mongoose.model("User", userSchema);
 
 module.exports = User;
