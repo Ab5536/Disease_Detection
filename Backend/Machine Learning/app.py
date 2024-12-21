@@ -1,62 +1,40 @@
-#pip install flask flask-cors pickle5
 from flask import Flask, request, jsonify
 import pickle
 import numpy as np
 from PIL import Image
-import io
-import torch
-from torchvision import transforms
 
-# Load the pre-trained model
-model_path = "model_1_Binary.pkl"  # Replace with your pickle file path
-with open(model_path, "rb") as f:
-    model = pickle.load(f)
+# Load the trained model
+with open("D:/Semester 5/SE/New commit/Disease_Detection/Backend/Machine Learning/model_1_Binary.pkl", "rb") as model_file:
+    model = pickle.load(model_file)
 
-# Initialize Flask app
+# Initialize the Flask app
 app = Flask(__name__)
-
-# Allow CORS for frontend interaction
-from flask_cors import CORS
-CORS(app)
-
-# Define image transformations
-transform = transforms.Compose([
-    transforms.Resize((224, 224)),
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-])
 
 @app.route("/predict", methods=["POST"])
 def predict():
-    if 'file' not in request.files:
-        return jsonify({"error": "No file uploaded."}), 400
-
-    file = request.files["file"]
-    if not file:
-        return jsonify({"error": "No file uploaded."}), 400
-
     try:
-        # Open the image file
-        image = Image.open(io.BytesIO(file.read())).convert("RGB")
-        
-        # Preprocess the image
-        input_tensor = transform(image).unsqueeze(0)  # Add batch dimension
+        # Get the uploaded image from the request
+        if "file" not in request.files:
+            return jsonify({"error": "No file part in the request"}), 400
+        file = request.files["file"]
+        if file.filename == "":
+            return jsonify({"error": "No file selected for uploading"}), 400
 
-        # Perform inference
-        model.eval()
-        with torch.no_grad():
-            outputs = model(input_tensor)
-            _, predicted_class = outputs.max(1)
+        # Open and preprocess the image
+        image = Image.open(file)
+        image = image.resize((224, 224))  # Resize to match model input
+        image_array = np.array(image) / 255.0  # Normalize the image
+        image_array = image_array.reshape(1, *image_array.shape)  # Add batch dimension
 
-        # Map class index to label (customize based on your classes)
-        classes = ["Normal", "Tuberculosis"]  # Replace with actual class names
-        prediction = classes[predicted_class.item()]
+        # Predict using the model
+        prediction = model.predict(image_array)
+        result = "Yes" if prediction[0] > 0.5 else "No"  # Adjust threshold if needed
 
-        return jsonify({"prediction": prediction})
-
+        # Return the prediction as JSON
+        return jsonify({"prediction": result})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# Run the app
+# Run the Flask app
 if __name__ == "__main__":
     app.run(debug=True)
