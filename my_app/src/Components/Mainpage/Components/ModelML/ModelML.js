@@ -13,7 +13,7 @@ const ModelML = () => {
       setResult("Analyzing image...");
 
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("image", file);
 
       try {
         setLoading(true); 
@@ -21,15 +21,16 @@ const ModelML = () => {
           method: "POST",
           body: formData,
         });
-
+          console.log(response)
         if (!response.ok) {
-          throw new Error("Failed to fetch prediction");
+          throw new Error("Failed to Model");
         }
 
         const data = await response.json();
         setResult(data.prediction || "No disease detected."); 
-      } catch (error) {
-        setResult(`Error: ${error.message}`); 
+      } 
+      catch (error) {
+        setResult(`Error: ${error.message+"Hello its Kamran"}`); 
       } finally {
         setLoading(false);
       }
