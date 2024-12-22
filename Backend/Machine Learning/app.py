@@ -1,82 +1,52 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, jsonify
 import pickle
+import os
 import numpy as np
-from PIL import Image, UnidentifiedImageError
-import torch
-from torchvision import transforms
+from PIL import Image
 
-# Load the trained ViT model
-model_path = 'model_1_Binary_Updated.pkl'
+# Load the trained model
+MODEL_FILE = "model_1_Binary.pkl"
 
-def load_model(path):
-    """Load the model from the specified path and map it to the CPU."""
-    try:
-        with open(path, 'rb') as file:
-            model = pickle.load(file)
-        model.to(torch.device('cpu'))  # Move the model to the CPU
-        model.eval()  # Set the model to evaluation mode
-        return model
-    except Exception as e:
-        raise RuntimeError(f"Failed to load the model: {str(e)}")
+if os.path.exists(MODEL_FILE):
+    with open(MODEL_FILE, "rb") as model_file:
+        model = pickle.load(model_file)
+    print("Model loaded successfully!")
+else:
+    raise FileNotFoundError(f"{MODEL_FILE} not found in the current directory.")
 
-# Initialize the model
-model = load_model(model_path)
-
-# Define preprocessing for the input image
-transform = transforms.Compose([
-    transforms.Resize((224, 224)),  # Resize to 224x224 (standard for ViT)
-    transforms.ToTensor(),          # Convert to tensor
-    transforms.Normalize([0.5], [0.5])  # Normalize with mean and std
-])
-
-# Initialize Flask application
+# Initialize the Flask app
 app = Flask(__name__)
 
-@app.route('/')
-def home():
-    """Render the home page."""
-    return render_template('index.html')
-
-@app.route('/predict', methods=['POST'])
+@app.route("/predict", methods=["POST"])
 def predict():
-    """Handle image upload and make predictions."""
-    if 'image' not in request.files:
-        return render_template('index.html', prediction_text='No image file uploaded.')
-
-    file = request.files['image']
-    if file.filename == '':
-        return render_template('index.html', prediction_text='Please upload an image file.')
-
     try:
+        # Check if the file is in the request
+        if "file" not in request.files:
+            return jsonify({"error": "No file part in the request"}), 400
+
+        file = request.files["file"]
+
+        # Check if a file was uploaded
+        if file.filename == "":
+            return jsonify({"error": "No file selected for uploading"}), 400
+
         # Open and preprocess the image
-        image = Image.open(file).convert('RGB')  # Ensure the image is in RGB format
-        input_tensor = transform(image).unsqueeze(0)  # Add batch dimension
+        image = Image.open(file)
+        image = image.resize((224, 224))  # Resize to match model input size
+        image_array = np.array(image) / 255.0  # Normalize pixel values
+        image_array = image_array.reshape(1, *image_array.shape)  # Add batch dimension
 
-        # Make prediction
-        with torch.no_grad():
-            output = model(input_tensor)  # Forward pass
-            
-            # Handle non-tensor outputs
-            if not isinstance(output, torch.Tensor):
-                if hasattr(output, "logits"):  # For models like HuggingFace transformers
-                    output = output.logits
-                else:
-                    raise TypeError("Model output is not a tensor and does not have 'logits' attribute.")
+        # Predict using the loaded model
+        prediction = model.predict(image_array)  # Assuming model has `predict` method
+        result = "Yes" if prediction[0] > 0.5 else "No"  # Adjust threshold as needed
 
-            prediction = torch.argmax(output, dim=1).item()  # Get the predicted class
+        # Return the result as JSON
+        return jsonify({"prediction": result})
 
-        # Interpret the prediction
-        output_text = 'Active TB' if prediction == 1 else 'Not Active TB'
-        return render_template('index.html', prediction_text=f'Prediction: {output_text}')
-
-    except UnidentifiedImageError:
-        # Handle invalid image files
-        return render_template('index.html', prediction_text='Invalid image file. Please upload a valid image.')
     except Exception as e:
-        # Catch all other exceptions
-        return render_template('index.html', prediction_text=f'Error processing image: {str(e)}')
+        # Handle unexpected errors
+        return jsonify({"error": str(e)}), 500
 
-
+# Run the Flask app
 if __name__ == "__main__":
-    # Run the app
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host="127.0.0.1", port=8080, debug=True)  # Run on localhost
