@@ -1,40 +1,82 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, render_template, jsonify
 import pickle
 import numpy as np
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
+import torch
+from torchvision import transforms
+from flask_cors import CORS
+# Load the trained ViT model
+model_path = 'model_1_Binary_Updated.pkl'
 
-# Load the trained model
-with open("D:/Semester 5/SE/New commit/Disease_Detection/Backend/Machine Learning/model_1_Binary.pkl", "rb") as model_file:
-    model = pickle.load(model_file)
-
-# Initialize the Flask app
-app = Flask(__name__)
-
-@app.route("/predict", methods=["POST"])
-def predict():
+def load_model(path):
+    """Load the model from the specified path and map it to the CPU."""
     try:
-        # Get the uploaded image from the request
-        if "file" not in request.files:
-            return jsonify({"error": "No file part in the request"}), 400
-        file = request.files["file"]
-        if file.filename == "":
-            return jsonify({"error": "No file selected for uploading"}), 400
-
-        # Open and preprocess the image
-        image = Image.open(file)
-        image = image.resize((224, 224))  # Resize to match model input
-        image_array = np.array(image) / 255.0  # Normalize the image
-        image_array = image_array.reshape(1, *image_array.shape)  # Add batch dimension
-
-        # Predict using the model
-        prediction = model.predict(image_array)
-        result = "Yes" if prediction[0] > 0.5 else "No"  # Adjust threshold if needed
-
-        # Return the prediction as JSON
-        return jsonify({"prediction": result})
+        with open(path, 'rb') as file:
+            model = pickle.load(file)
+        model.to(torch.device('cpu'))  # Move the model to the CPU
+        model.eval()  # Set the model to evaluation mode
+        return model
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        raise RuntimeError(f"Failed to load the model: {str(e)}")
 
-# Run the Flask app
+# Initialize the model
+model = load_model(model_path)
+
+# Define preprocessing for the input image
+transform = transforms.Compose([
+    transforms.Resize((224, 224)),  # Resize to 224x224 (standard for ViT)
+    transforms.ToTensor(),          # Convert to tensor
+    transforms.Normalize([0.5], [0.5])  # Normalize with mean and std
+])
+
+# Initialize Flask application
+app = Flask(__name__)
+CORS(app)
+@app.route('/')
+def home():
+    """Render the home page."""
+    return render_template('index.html')
+
+@app.route('/predict', methods=['POST'])
+def predict():
+    """Handle image upload and make predictions."""
+    if 'image' not in request.files:
+        return render_template('index.html', prediction_text='No image file uploaded.')
+    print("Hello Kamran")
+    file = request.files['image']
+    # if file.filename == '':
+    #     return render_template('index.html', prediction_text='Please upload an image file.')
+
+    try:
+        # Open and preprocess the image
+        image = Image.open(file).convert('RGB')  # Ensure the image is in RGB format
+        input_tensor = transform(image).unsqueeze(0)  # Add batch dimension
+
+        # Make prediction
+        with torch.no_grad():
+            output = model(input_tensor)  # Forward pass
+            print("In torch")
+            # Handle non-tensor outputs
+            if not isinstance(output, torch.Tensor):
+                if hasattr(output, "logits"):  # For models like HuggingFace transformers
+                    output = output.logits
+                else:
+                    raise TypeError("Model output is not a tensor and does not have 'logits' attribute.")
+            print("Start MK")
+            prediction = torch.argmax(output, dim=1).item()  # Get the predicted class
+            print(prediction)
+        # Interpret the prediction
+        result = 'Active TB' if prediction == 1 else 'Not Active TB'
+        return jsonify({"prediction": result})
+
+    except UnidentifiedImageError:
+        # Handle invalid image files
+        return render_template('index.html', prediction_text='Invalid image file. Please upload a valid image.')
+    except Exception as e:
+        # Catch all other exceptions
+        return render_template('index.html', prediction_text=f'Error processing image: {str(e)}')
+
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Run the app
+    app.run(host='127.0.0.1', port=8080, debug=True)
