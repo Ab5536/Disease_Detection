@@ -10,9 +10,15 @@ import logo from "./images/logo.png";
 import Blog from "./Components/Blog/Blog";
 import Doctor from "./Components/Doctor/Doctor";
 import Footer from "./Components/Footer/Footer";
+import Reviews from "./Components/Reviews/Review";
 const Mainpage = () => {
   const route = useNavigate();
-
+  const scrollToDoctorSection = () => {
+    const section = document.getElementById("doctor-section");
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth" });
+    }
+  };
   return (
     <div className="mainpage">
       <header className="header-mainpage">
@@ -27,13 +33,13 @@ const Mainpage = () => {
         <nav>
           <ul className="header-items-mainpage">
             <li>
-              <a href="#home">Home</a>
+              <a href="#first-Section">Home</a>
             </li>
             <li>
-              <a href="#upload">Upload</a>
+              <a href="#model-section">TB Detection</a>
             </li>
             <li>
-              <a href="#consultation">Consultation</a>
+              <a href="#Consult">Consultation</a>
             </li>
             <li
               onClick={() => {
@@ -54,7 +60,7 @@ const Mainpage = () => {
       </header>
 
       <main>
-        <section className="first-section">
+        <section id="first-Section" className="first-section">
           <div className="first-text">
             <span className="subheading">Best Treatment in Town</span>
             <h1>Your Health, Our Priority</h1>
@@ -62,16 +68,25 @@ const Mainpage = () => {
               Benefit from expert medical guidance and innovative treatment
               approaches
             </p>
-            <button className="btn-consult-us" onClick={() => {}}>
+            <button className="btn-consult-us" onClick={scrollToDoctorSection}>
               Consult Us
             </button>
           </div>
         </section>
-        <Home />
-        <ModelML />
-        <Doctor />
+        {/* <section id="home-section">
+          <Home />
+        </section> */}
+        <section id="model-section">
+          <ModelML />
+        </section>
+
+        <section id="doctor-section" className="Doctor-Section">
+          <Doctor />
+        </section>
         <Blog />
-        <Footer/>
+        <Consultation id="Consult"/>
+        <Reviews/>
+        <Footer />
       </main>
     </div>
   );
