@@ -1,12 +1,13 @@
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, jsonify
 import pickle
 import numpy as np
 from PIL import Image, UnidentifiedImageError
 import torch
 from torchvision import transforms
 from flask_cors import CORS
+
 # Load the trained ViT model
-model_path = 'model_1_Binary_Updated.pkl'
+model_path = './machine_learning/model_1_Binary_Updated.pkl'
 
 def load_model(path):
     """Load the model from the specified path and map it to the CPU."""
@@ -31,22 +32,15 @@ transform = transforms.Compose([
 
 # Initialize Flask application
 app = Flask(__name__)
-CORS(app)
-@app.route('/')
-def home():
-    """Render the home page."""
-    return render_template('index.html')
+CORS(app)  # Enable CORS to allow communication with frontend apps
 
 @app.route('/predict', methods=['POST'])
 def predict():
     """Handle image upload and make predictions."""
     if 'image' not in request.files:
-        return render_template('index.html', prediction_text='No image file uploaded.')
-    print("Hello Kamran")
-    file = request.files['image']
-    # if file.filename == '':
-    #     return render_template('index.html', prediction_text='Please upload an image file.')
+        return jsonify({"error": "No image file uploaded."}), 400
 
+    file = request.files['image']
     try:
         # Open and preprocess the image
         image = Image.open(file).convert('RGB')  # Ensure the image is in RGB format
@@ -55,28 +49,24 @@ def predict():
         # Make prediction
         with torch.no_grad():
             output = model(input_tensor)  # Forward pass
-            print("In torch")
             # Handle non-tensor outputs
             if not isinstance(output, torch.Tensor):
                 if hasattr(output, "logits"):  # For models like HuggingFace transformers
                     output = output.logits
                 else:
                     raise TypeError("Model output is not a tensor and does not have 'logits' attribute.")
-            print("Start MK")
             prediction = torch.argmax(output, dim=1).item()  # Get the predicted class
-            print(prediction)
+        
         # Interpret the prediction
         result = 'Active TB' if prediction == 1 else 'Not Active TB'
-        return jsonify({"prediction": result})
+        return jsonify({"prediction": result}), 200
 
     except UnidentifiedImageError:
-        # Handle invalid image files
-        return render_template('index.html', prediction_text='Invalid image file. Please upload a valid image.')
+        return jsonify({"error": "Invalid image file. Please upload a valid image."}), 400
     except Exception as e:
-        # Catch all other exceptions
-        return render_template('index.html', prediction_text=f'Error processing image: {str(e)}')
+        return jsonify({"error": f"Error processing image: {str(e)}"}), 500
 
 
 if __name__ == "__main__":
-    # Run the app
-    app.run(host='127.0.0.1', port=8080, debug=True)
+    # Production-ready app, Vercel manages the host and port
+    app.run()
